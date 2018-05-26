@@ -1,0 +1,100 @@
+OS（个人习惯 与本文主旨无关，1、2可直接跳过）
+1、控制面板 - 语言 右侧 高级设置 - 切换输入法 - 更改语言栏热键 - 在输入语言之间
+2、查看文件扩展名
+3、配置虚拟域名
+	> subl C:/Windows/System32/Drivers/etc/hosts
+无法保存 参照 https://jingyan.baidu.com/article/624e7459b194f134e8ba5a8e.html
+
+laravel开发环境 
+建议采用版本
+	VirtualBox 5.2.6 
+	Vagrant 2.0.2(2.2.3亲测异常 https://github.com/hashicorp/vagrant/issues/9582)
+	Homestead 5.4.0
+
+1、安装 virtualbox  https://www.virtualbox.org/
+2、安装 vagrant https://www.vagrantup.com/downloads.html
+3、下载镜像 Homestead Box https://app.vagrantup.com/laravel/boxes/homestead or laravel-china 推荐laravel-china定制环境 http://download.fsdhub.com/lt-homestead-3-0-0-2017082400.zip
+4、载入镜像 
+	> vagrant box add metadata.json
+注意：尽量不要放在桌面
+如果你使用的 Windows 系统在安装 Homestead 的时候报错：The box 'laravel/homestead' could not be found or could not be accessed in the remote catalog.，请下载 MS Visual C++ 2010 x86 Redistributables 并进行安装即可修复。 或者运行
+	> vagrant box add laravel/homestead homestead-virtualbox-3.0.0.box
+有误请进行手工导入 (不适用定制版)
+如有疑虑用命令
+	> vagrant box list 
+检查 如有误 则删除重装
+	> vagrant box remove laravel/homestead --all
+成功后，lt-homestead-3-0-0-2017082400 文件夹可任意删除。
+5、下载 Homestead 项目 https://github.com/laravel/homestead/releases，
+	> git clone https://git.coding.net/summerblue/homestead.git Homestead
+laravel-china 推荐5.4版本
+	> git checkout v5.4.0
+6、初始化Homestead
+	> bash init.sh
+生成以下三个文件：
+Homestead.yaml - 主要配置信息文件，我们可以在此文件中配置 Homestead 的站点和数据库等信息；
+after.sh - 每一次 Homestead 盒子重置后（provision）会调用的 shell 脚本文件；
+aliases - 每一次 Homestead 盒子重置后（provision），会被替换至虚拟机的 ~/.bash_aliases 文件中，aliases 里可以放一些快捷命令的定义。
+7、配置Homestead
+> subl ~/Homestead/Homestead.yaml
+在key行中添加公钥
+	- ~/.ssh/id_rsa.pub
+在folders 按照需要添加（后文还会用到）
+	- map: D:/website
+	  to: /home/vagrant/Code
+注意：配置文件必须准确，缩进/空格
+8、生成秘钥
+接下来我们来生成 SSH Key，开始之前，我们先使用以下命令来检查主机上是否已经生成过 SSH Key：
+	> ls -al ~/.ssh
+生成
+	> ssh-keygen -t rsa -C "your_email@example.com"
+9、启动
+	> vagrant up
+无法启动 主板BIOS开启虚拟器服务
+10、进入虚拟机
+	> vagrant ssh
+11、交互加速（注意会引起composer安装某些包时候出错）
+安装vagrant插件
+	> vagrant plugin install vagrant-winnfsd
+修改配置文件（记得备份）
+文件1：homestead/scripts/homestead.rb
+	# Register All Of The Configured Shared Folders
+	if settings.include? 'folders'
+	    settings["folders"].each do |folder|
+	    .
+	    .
+	    .
+	         end
+	        end
+	    end
+	end
+改为
+	if settings.include? 'folders'
+	  settings["folders"].sort! { |a,b| a["map"].length <=> b["map"].length }
+
+	  settings["folders"].each do |folder|
+	    config.vm.synced_folder folder["map"], folder["to"], 
+	    id: folder["map"],
+	    :nfs => true,
+	    :mount_options => ['nolock,vers=3,udp,noatime']
+	  end
+	end
+文件2：上文中
+folders中最后添加属性 type: nfs
+
+sublime
+1、安装 sublime http://www.sublimetext.com/
+2、安装 sublime插件 control
+3、通过control 控件 Preferences > Package Control ：  输入 ins 会自动补全 安装sublime 插件  editorConfig 用于使得代码编辑器风格保持一致
+4、使用sublime的命令 subl 配置环境变量 path
+
+git
+安装git  https://www.git-scm.com/download/win
+
+nodejs
+安装ndoejs https://nodejs.org/en/
+
+PS
+使用百度云盘下载 https://pan.baidu.com/s/1jH6o5sa#list/path=%2FLaravelTutorials%2FWindows&parentPath=%2FLaravelTutorials
+explorer . 打开当前路径
+subl . 使用sublime打开当前项目
